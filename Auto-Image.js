@@ -285,7 +285,7 @@ pt: {
   };
 
   function detectLanguage(){ state.language = 'vi'; }
-  }
+  
 
   const Utils = {
     sleep: ms => new Promise(r => setTimeout(r, ms)),
