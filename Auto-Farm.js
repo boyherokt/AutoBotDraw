@@ -23,10 +23,33 @@
     lastPixel: null,
     minimized: false,
     menuOpen: false,
-    language: 'vi'
+    language: 'en'
   };
 
   const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+  const originalFetch = window.fetch;
+  let capturedCaptchaToken = null;
+  let stoppedForToken = false; // flag to auto-restart after manual token capture
+  window.fetch = async (url, options = {}) => {
+    if (typeof url === 'string' && url.includes('https://backend.wplace.live/s0/pixel/')) {
+      try {
+        const payload = JSON.parse(options.body || '{}');
+        if (payload.t) {
+          console.log('✅ CAPTCHA Token Captured:', payload.t);
+          capturedCaptchaToken = payload.t;
+          // auto-restart if was stopped due to token expiry
+          if (stoppedForToken) {
+            stoppedForToken = false;
+            const btn = document.getElementById('toggleBtn');
+            if (btn) btn.click();
+          }
+        }
+      } catch (e) {
+      }
+    }
+    return originalFetch(url, options);
+  };
 
   const fetchAPI = async (url, options = {}) => {
     try {
@@ -47,11 +70,26 @@
 
   const paintPixel = async (x, y) => {
     const randomColor = Math.floor(Math.random() * 31) + 1;
-    return await fetchAPI(`https://backend.wplace.live/s0/pixel/${CONFIG.START_X}/${CONFIG.START_Y}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
-      body: JSON.stringify({ coords: [x, y], colors: [randomColor] })
-    });
+    const url = `https://backend.wplace.live/s0/pixel/${CONFIG.START_X}/${CONFIG.START_Y}`;
+    const payload = JSON.stringify({ coords: [x, y], colors: [randomColor], t: capturedCaptchaToken });
+    try {
+      const res = await originalFetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+        credentials: 'include',
+        body: payload
+      });
+      if (res.status === 403) {
+        console.error('❌ 403 Forbidden. CAPTCHA token might be invalid or expired.');
+        capturedCaptchaToken = null; // Invalidate our stored token.
+        stoppedForToken = true;
+        return 'token_error'; // Return a special status to stop the bot.
+      }
+      const data = await res.json();
+      return data;
+    } catch (e) {
+      return null;
+    }
   };
 
   const getCharge = async () => {
@@ -70,14 +108,28 @@
     return state.charges;
   };
 
-  const detectUserLocation = async () => { state.language = 'vi'; };
+  const detectUserLocation = async () => {
+    try {
+      const response = await fetch('https://ipapi.co/json/');
+      const data = await response.json();
+      if (data.country === 'BR') {
+        state.language = 'pt';
+      } else if (data.country === 'US') {
+        state.language = 'en';
+      } else {
+        state.language = 'en';
+      }
+    } catch {
+      state.language = 'en';
+    }
+  };
 
   const paintLoop = async () => {
     while (state.running) {
       const { count, cooldownMs } = state.charges;
       
       if (count < 1) {
-        updateUI(`⌛ Hết lượt vẽ. Chờ ${Math.ceil(cooldownMs/1000)}s...`, 'status');
+        updateUI(state.language === 'pt' ? `⌛ Sem cargas. Esperando ${Math.ceil(cooldownMs/1000)}s...` : `⌛ No charges. Waiting ${Math.ceil(cooldownMs/1000)}s...`, 'status');
         await sleep(cooldownMs);
         await getCharge();
         continue;
@@ -85,6 +137,18 @@
 
       const randomPos = getRandomPosition();
       const paintResult = await paintPixel(randomPos.x, randomPos.y);
+      // If token expired or invalid, stop the loop
+      if (paintResult === 'token_error') {
+        // Show prompt to manually capture a new token
+        updateUI(
+          state.language === 'pt'
+            ? '❌ Token expirado. Clique manualmente em qualquer pixel para capturar novo token.'
+            : '❌ CAPTCHA token expired. Please click any pixel manually to capture a new token.',
+          'error'
+        );
+        state.running = false;
+        return;
+      }
       
       if (paintResult?.painted === 1) {
         state.paintedCount++;
@@ -100,9 +164,9 @@
           document.getElementById('paintEffect').style.animation = '';
         }, 500);
         
-        updateUI('✅ Đã tô 1 pixel!', 'success');
+        updateUI(state.language === 'pt' ? '✅ Pixel pintado!' : '✅ Pixel painted!', 'success');
       } else {
-        updateUI('❌ Tô pixel thất bại', 'error');
+        updateUI(state.language === 'pt' ? '❌ Falha ao pintar' : '❌ Failed to paint', 'error');
       }
 
       await sleep(CONFIG.DELAY);
@@ -259,19 +323,29 @@
     document.head.appendChild(style);
 
     const translations = {
-  vi: {
-    title: "WPlace Auto-Farm",
-    start: "Bắt đầu",
-    stop: "Dừng",
-    ready: "Sẵn sàng để bắt đầu",
-    user: "Người dùng",
-    pixels: "Pixels",
-    charges: "Lượt vẽ",
-    level: "Cấp"
-  }
-};
-const t = translations['vi'];
+      pt: {
+        title: "WPlace Auto-Farm",
+        start: "Iniciar",
+        stop: "Parar",
+        ready: "Pronto para começar",
+        user: "Usuário",
+        pixels: "Pixels",
+        charges: "Cargas",
+        level: "Level"
+      },
+      en: {
+        title: "WPlace Auto-Farm",
+        start: "Start",
+        stop: "Stop",
+        ready: "Ready to start",
+        user: "User",
+        pixels: "Pixels",
+        charges: "Charges",
+        level: "Level"
+      }
+    };
 
+    const t = translations[state.language] || translations.en;
 
     const panel = document.createElement('div');
     panel.className = 'wplace-bot-panel';
@@ -283,7 +357,7 @@ const t = translations['vi'];
           <span>${t.title}</span>
         </div>
         <div class="wplace-header-controls">
-          <button id="minimizeBtn" class="wplace-header-btn" title="Thu gọn">
+          <button id="minimizeBtn" class="wplace-header-btn" title="${state.language === 'pt' ? 'Minimizar' : 'Minimize'}">
             <i class="fas fa-${state.minimized ? 'expand' : 'minus'}"></i>
           </button>
         </div>
@@ -299,13 +373,13 @@ const t = translations['vi'];
         <div class="wplace-stats">
           <div id="statsArea">
             <div class="wplace-stat-item">
-              <div class="wplace-stat-label"><i class="fas fa-paint-brush"></i> Đang tải...</div>
+              <div class="wplace-stat-label"><i class="fas fa-paint-brush"></i> ${state.language === 'pt' ? 'Carregando...' : 'Loading...'}</div>
             </div>
           </div>
         </div>
         
         <div id="statusText" class="wplace-status status-default">
-          Sẵn sàng để bắt đầu
+          ${t.ready}
         </div>
       </div>
     `;
@@ -353,17 +427,23 @@ const t = translations['vi'];
     toggleBtn.addEventListener('click', () => {
       state.running = !state.running;
       
+      if (state.running && !capturedCaptchaToken) {
+        updateUI(state.language === 'pt' ? '❌ Token não capturado. Clique em qualquer pixel primeiro.' : '❌ CAPTCHA token not captured. Please click any pixel manually first.', 'error');
+        state.running = false;
+        return;
+      }
+  
       if (state.running) {
         toggleBtn.innerHTML = `<i class="fas fa-stop"></i> <span>${t.stop}</span>`;
         toggleBtn.classList.remove('wplace-btn-primary');
         toggleBtn.classList.add('wplace-btn-stop');
-        updateUI('🚀 Bắt đầu tô!', 'success');
+        updateUI(state.language === 'pt' ? '🚀 Pintura iniciada!' : '🚀 Painting started!', 'success');
         paintLoop();
       } else {
         toggleBtn.innerHTML = `<i class="fas fa-play"></i> <span>${t.start}</span>`;
         toggleBtn.classList.add('wplace-btn-primary');
         toggleBtn.classList.remove('wplace-btn-stop');
-        updateUI('⏸️ Tạm dừng tô', 'default');
+        updateUI(state.language === 'pt' ? '⏸️ Pintura pausada' : '⏸️ Painting paused', 'default');
       }
     });
     
@@ -393,7 +473,25 @@ const t = translations['vi'];
     await getCharge();
     const statsArea = document.querySelector('#statsArea');
     if (statsArea) {
-      const t = { user: 'Người dùng', pixels: 'Pixels', charges: 'Lượt vẽ', level: 'Cấp' };
+      const t = {
+        pt: {
+          user: "Usuário",
+          pixels: "Pixels",
+          charges: "Cargas",
+          level: "Level"
+        },
+        en: {
+          user: "User",
+          pixels: "Pixels",
+          charges: "Charges",
+          level: "Level"
+        }
+      }[state.language] || {
+        user: "User",
+        pixels: "Pixels",
+        charges: "Charges",
+        level: "Level"
+      };
 
       statsArea.innerHTML = `
         <div class="wplace-stat-item">
@@ -416,7 +514,7 @@ const t = translations['vi'];
     }
   };
 
-  state.language = 'vi';
+  await detectUserLocation();
   createUI();
   await getCharge();
   updateStats();
