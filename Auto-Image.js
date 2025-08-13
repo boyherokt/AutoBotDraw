@@ -84,6 +84,13 @@
       waitingInit: "Waiting for initialization...",
       resizeSuccess: "✅ Image resized to {width}x{height}",
       paintingPaused: "⏸️ Painting paused at position X: {x}, Y: {y}"
+    
+minimize: "Minimize",
+width: "Width",
+height: "Height",
+keepAspect: "Keep aspect ratio",
+apply: "Apply",
+cancel: "Cancel",
     },
     fr: {
       title: "WPlace Auto-Image",
@@ -221,7 +228,48 @@
       resizeSuccess: "✅ Зображення змінено до {width}x{height}",
       paintingPaused: "⏸️ Малювання призупинено на позиції X: {x}, Y: {y}"
     }
-  };
+  },
+vi: {
+  title: "WPlace Auto-Image",
+  initBot: "Khởi động Auto-BOT",
+  uploadImage: "Tải ảnh lên",
+  resizeImage: "Thay đổi kích thước",
+  selectPosition: "Chọn vị trí",
+  startPainting: "Bắt đầu vẽ",
+  stopPainting: "Dừng vẽ",
+  checkingColors: "🔍 Đang kiểm tra các màu khả dụng...",
+  noColorsFound: "❌ Hãy mở bảng màu trên trang rồi thử lại!",
+  colorsFound: "✅ Tìm thấy {count} màu khả dụng",
+  loadingImage: "🖼️ Đang tải ảnh...",
+  imageLoaded: "✅ Ảnh đã tải với {count} pixel hợp lệ",
+  imageError: "❌ Lỗi khi tải ảnh",
+  selectPositionAlert: "Hãy tô pixel đầu tiên tại vị trí bạn muốn bắt đầu tác phẩm!",
+  waitingPosition: "👆 Đang chờ bạn tô pixel tham chiếu...",
+  positionSet: "✅ Đã đặt vị trí thành công!",
+  positionTimeout: "❌ Hết thời gian chọn vị trí",
+  startPaintingMsg: "🎨 Bắt đầu vẽ...",
+  paintingProgress: "🧱 Tiến độ: {painted}/{total} pixel...",
+  noCharges: "⌛ Hết lượt vẽ. Chờ {time}...",
+  paintingStopped: "⏹️ Đã dừng vẽ theo yêu cầu",
+  paintingComplete: "✅ Vẽ xong! Đã tô {count} pixel.",
+  paintingError: "❌ Lỗi trong quá trình vẽ",
+  missingRequirements: "❌ Hãy tải ảnh và chọn vị trí trước",
+  progress: "Tiến độ",
+  pixels: "Pixel",
+  charges: "Lượt vẽ",
+  estimatedTime: "Thời gian ước tính",
+  initMessage: "Bấm 'Khởi động Auto-BOT' để bắt đầu",
+  waitingInit: "Đang chờ khởi tạo...",
+  resizeSuccess: "✅ Ảnh đã đổi kích thước thành {width}x{height}",
+  paintingPaused: "⏸️ Tạm dừng vẽ tại X: {x}, Y: {y}",
+  minimize: "Thu gọn",
+  width: "Chiều rộng",
+  height: "Chiều cao",
+  keepAspect: "Giữ tỉ lệ",
+  apply: "Áp dụng",
+  cancel: "Hủy"
+},
+  ;
 
   const state = {
     running: false,
@@ -241,7 +289,7 @@
     minimized: false,
     lastPosition: { x: 0, y: 0 },
     estimatedTime: 0,
-    language: 'en'
+    language: 'vi'
   };
 
   function detectLanguage() {
