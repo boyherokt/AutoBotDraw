@@ -128,10 +128,11 @@
     startPosition: null,
     selectingPosition: false,
     region: null,
-    minimized: false,
-    lastPosition: { x: 0, y: 0 },
-    estimatedTime: 0,
-    language: "en",
+  minimized: false,
+  lastPosition: { x: 0, y: 0 },
+  estimatedTime: 0,
+  autoRefresh: true,
+  language: "en",
   };
 
   // Global variable to store the captured CAPTCHA token.
@@ -1413,9 +1414,59 @@
       }
     };
     
-    // Check for saved progress after a short delay to let UI settle
     setTimeout(checkSavedProgress, 1000);
   }
+
+const sleep = Utils.sleep;
+const waitForSelector = async (selector, interval = 200, timeout = 5000) => {
+  const start = Date.now();
+  while (Date.now() - start < timeout) {
+    const el = document.querySelector(selector);
+    if (el) return el;
+    await sleep(interval);
+  }
+  return null;
+};
+
+async function autoRefreshSequence() {
+  const paintBtn = await waitForSelector(
+    'button.btn.btn-primary.btn-lg, button.btn-primary.sm\\:btn-xl'
+  );
+  paintBtn?.click();
+
+  await sleep(500);
+
+  const transBtn = await waitForSelector('button#color-0');
+  transBtn?.click();
+
+  await sleep(500);
+
+  const canvas = await waitForSelector('canvas');
+  if (canvas) {
+    canvas.setAttribute('tabindex','0');
+    canvas.focus();
+    const rect = canvas.getBoundingClientRect();
+    const centerX = Math.round(rect.left + rect.width/2);
+    const centerY = Math.round(rect.top + rect.height/2);
+    const moveEvt = new MouseEvent('mousemove', { clientX: centerX, clientY: centerY, bubbles: true });
+    canvas.dispatchEvent(moveEvt);
+    const down = new KeyboardEvent('keydown', { key: ' ', code: 'Space', bubbles: true });
+    const up   = new KeyboardEvent('keyup',   { key: ' ', code: 'Space', bubbles: true });
+    canvas.dispatchEvent(down);
+    canvas.dispatchEvent(up);
+  }
+
+  await sleep(500);
+
+  let confirmBtn = await waitForSelector(
+    'button.btn.btn-primary.btn-lg, button.btn.btn-primary.sm\\:btn-xl'
+  );
+  if (!confirmBtn) {
+    const all = Array.from(document.querySelectorAll('button.btn-primary'));
+    confirmBtn = all[all.length - 1] || null;
+  }
+  confirmBtn?.click();
+}
 
   async function processImage() {
     const { width, height, pixels } = state.imageData;
@@ -1473,6 +1524,45 @@
             const success = await sendPixelBatch(pixelBatch, regionX, regionY);
 
             if (success === "token_error") {
+              // Only auto-refresh if enabled and more than 1 charge available
+              if (state.autoRefresh && state.currentCharges > 1) {
+                // CAPTCHA expired: keep trying refresh and retry until token works
+                updateUI("captchaNeeded", "error");
+                Utils.showAlert(Utils.t("captchaNeeded"), "error");
+                let retry;
+                do {
+                  // wait until enough charges available
+                  while (state.currentCharges <= 1) {
+                    updateUI(
+                      state.language === 'pt'
+                        ? `⌛ Sem cargas. Esperando ${Math.ceil(state.cooldown/1000)}s...`
+                        : `⌛ No charges. Waiting ${Math.ceil(state.cooldown/1000)}s...`,
+                      'status'
+                    );
+                    await Utils.sleep(state.cooldown);
+                    const info = await WPlaceService.getCharges();
+                    state.currentCharges = Math.floor(info.charges);
+                    state.cooldown = info.cooldown;
+                  }
+                  await autoRefreshSequence();
+                  // retry this batch after refresh
+                  retry = await sendPixelBatch(pixelBatch, regionX, regionY);
+                } while (retry === "token_error");
+                if (retry === true) {
+                  // successful retry: mark pixels and continue
+                  pixelBatch.forEach(p => {
+                    state.paintedMap[p.localY][p.localX] = true;
+                    state.paintedPixels++;
+                  });
+                  state.currentCharges -= pixelBatch.length;
+                  updateStats();
+                  updateUI('paintingProgress', 'default', { painted: state.paintedPixels, total: state.totalPixels });
+                  pixelBatch = [];
+                  continue;
+                }
+                // if retry is false (non-token error), fall through to fallback
+              }
+              // fallback: halt on token error
               state.stopFlag = true;
               updateUI("captchaNeeded", "error");
               Utils.showAlert(Utils.t("captchaNeeded"), "error");
@@ -1545,9 +1635,6 @@
   }
 
   async function sendPixelBatch(pixelBatch, regionX, regionY) {
-    if (!capturedCaptchaToken) {
-      return "token_error";
-    }
 
     const coords = [];
     const colors = [];
