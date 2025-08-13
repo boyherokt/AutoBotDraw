@@ -23,7 +23,7 @@
     lastPixel: null,
     minimized: false,
     menuOpen: false,
-    language: 'en'
+    language: 'vi'
   };
 
   const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -70,28 +70,14 @@
     return state.charges;
   };
 
-  const detectUserLocation = async () => {
-    try {
-      const response = await fetch('https://ipapi.co/json/');
-      const data = await response.json();
-      if (data.country === 'BR') {
-        state.language = 'pt';
-      } else if (data.country === 'US') {
-        state.language = 'en';
-      } else {
-        state.language = 'en';
-      }
-    } catch {
-      state.language = 'en';
-    }
-  };
+  const detectUserLocation = async () => { state.language = 'vi'; };
 
   const paintLoop = async () => {
     while (state.running) {
       const { count, cooldownMs } = state.charges;
       
       if (count < 1) {
-        updateUI(state.language === 'pt' ? `⌛ Sem cargas. Esperando ${Math.ceil(cooldownMs/1000)}s...` : `⌛ No charges. Waiting ${Math.ceil(cooldownMs/1000)}s...`, 'status');
+        updateUI(`⌛ Hết lượt vẽ. Chờ ${Math.ceil(cooldownMs/1000)}s...`, 'status');
         await sleep(cooldownMs);
         await getCharge();
         continue;
@@ -114,9 +100,9 @@
           document.getElementById('paintEffect').style.animation = '';
         }, 500);
         
-        updateUI(state.language === 'pt' ? '✅ Pixel pintado!' : '✅ Pixel painted!', 'success');
+        updateUI('✅ Đã tô 1 pixel!', 'success');
       } else {
-        updateUI(state.language === 'pt' ? '❌ Falha ao pintar' : '❌ Failed to paint', 'error');
+        updateUI('❌ Tô pixel thất bại', 'error');
       }
 
       await sleep(CONFIG.DELAY);
@@ -273,29 +259,19 @@
     document.head.appendChild(style);
 
     const translations = {
-      pt: {
-        title: "WPlace Auto-Farm",
-        start: "Iniciar",
-        stop: "Parar",
-        ready: "Pronto para começar",
-        user: "Usuário",
-        pixels: "Pixels",
-        charges: "Cargas",
-        level: "Level"
-      },
-      en: {
-        title: "WPlace Auto-Farm",
-        start: "Start",
-        stop: "Stop",
-        ready: "Ready to start",
-        user: "User",
-        pixels: "Pixels",
-        charges: "Charges",
-        level: "Level"
-      }
-    };
+  vi: {
+    title: "WPlace Auto-Farm",
+    start: "Bắt đầu",
+    stop: "Dừng",
+    ready: "Sẵn sàng để bắt đầu",
+    user: "Người dùng",
+    pixels: "Pixels",
+    charges: "Lượt vẽ",
+    level: "Cấp"
+  }
+};
+const t = translations['vi'];
 
-    const t = translations[state.language] || translations.en;
 
     const panel = document.createElement('div');
     panel.className = 'wplace-bot-panel';
@@ -307,7 +283,7 @@
           <span>${t.title}</span>
         </div>
         <div class="wplace-header-controls">
-          <button id="minimizeBtn" class="wplace-header-btn" title="${state.language === 'pt' ? 'Minimizar' : 'Minimize'}">
+          <button id="minimizeBtn" class="wplace-header-btn" title="Thu gọn">
             <i class="fas fa-${state.minimized ? 'expand' : 'minus'}"></i>
           </button>
         </div>
@@ -323,13 +299,13 @@
         <div class="wplace-stats">
           <div id="statsArea">
             <div class="wplace-stat-item">
-              <div class="wplace-stat-label"><i class="fas fa-paint-brush"></i> ${state.language === 'pt' ? 'Carregando...' : 'Loading...'}</div>
+              <div class="wplace-stat-label"><i class="fas fa-paint-brush"></i> Đang tải...</div>
             </div>
           </div>
         </div>
         
         <div id="statusText" class="wplace-status status-default">
-          ${t.ready}
+          Sẵn sàng để bắt đầu
         </div>
       </div>
     `;
@@ -381,13 +357,13 @@
         toggleBtn.innerHTML = `<i class="fas fa-stop"></i> <span>${t.stop}</span>`;
         toggleBtn.classList.remove('wplace-btn-primary');
         toggleBtn.classList.add('wplace-btn-stop');
-        updateUI(state.language === 'pt' ? '🚀 Pintura iniciada!' : '🚀 Painting started!', 'success');
+        updateUI('🚀 Bắt đầu tô!', 'success');
         paintLoop();
       } else {
         toggleBtn.innerHTML = `<i class="fas fa-play"></i> <span>${t.start}</span>`;
         toggleBtn.classList.add('wplace-btn-primary');
         toggleBtn.classList.remove('wplace-btn-stop');
-        updateUI(state.language === 'pt' ? '⏸️ Pintura pausada' : '⏸️ Painting paused', 'default');
+        updateUI('⏸️ Tạm dừng tô', 'default');
       }
     });
     
@@ -417,25 +393,7 @@
     await getCharge();
     const statsArea = document.querySelector('#statsArea');
     if (statsArea) {
-      const t = {
-        pt: {
-          user: "Usuário",
-          pixels: "Pixels",
-          charges: "Cargas",
-          level: "Level"
-        },
-        en: {
-          user: "User",
-          pixels: "Pixels",
-          charges: "Charges",
-          level: "Level"
-        }
-      }[state.language] || {
-        user: "User",
-        pixels: "Pixels",
-        charges: "Charges",
-        level: "Level"
-      };
+      const t = { user: 'Người dùng', pixels: 'Pixels', charges: 'Lượt vẽ', level: 'Cấp' };
 
       statsArea.innerHTML = `
         <div class="wplace-stat-item">
@@ -458,7 +416,7 @@
     }
   };
 
-  await detectUserLocation();
+  state.language = 'vi';
   createUI();
   await getCharge();
   updateStats();
