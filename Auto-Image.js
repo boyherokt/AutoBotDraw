@@ -1,4 +1,5 @@
 (async () => {
+  // CONFIGURATION CONSTANTS
   const CONFIG = {
     COOLDOWN_DEFAULT: 31000,
     TRANSPARENCY_THRESHOLD: 100,
@@ -16,48 +17,9 @@
     }
   };
 
+  // BILINGUAL TEXT STRINGS
   const TEXTS = {
-    vi: {
-  title: "WPlace Auto-Image",
-  initBot: "Khởi động Auto-BOT",
-  uploadImage: "Tải ảnh lên",
-  resizeImage: "Thay đổi kích thước",
-  selectPosition: "Chọn vị trí",
-  startPainting: "Bắt đầu vẽ",
-  stopPainting: "Dừng vẽ",
-  checkingColors: "🔍 Đang kiểm tra các màu khả dụng...",
-  noColorsFound: "❌ Hãy mở bảng màu trên trang rồi thử lại!",
-  colorsFound: "✅ Tìm thấy {count} màu khả dụng",
-  loadingImage: "🖼️ Đang tải ảnh...",
-  imageLoaded: "✅ Ảnh đã tải với {count} pixel hợp lệ",
-  imageError: "❌ Lỗi khi tải ảnh",
-  selectPositionAlert: "Hãy tô pixel đầu tiên tại vị trí bạn muốn bắt đầu tác phẩm!",
-  waitingPosition: "👆 Đang chờ bạn tô pixel tham chiếu...",
-  positionSet: "✅ Đã đặt vị trí thành công!",
-  positionTimeout: "❌ Hết thời gian chọn vị trí",
-  startPaintingMsg: "🎨 Bắt đầu vẽ...",
-  paintingProgress: "🧱 Tiến độ: {painted}/{total} pixel...",
-  noCharges: "⌛ Hết lượt vẽ. Chờ {time}...",
-  paintingStopped: "⏹️ Đã dừng vẽ theo yêu cầu",
-  paintingComplete: "✅ Vẽ xong! Đã tô {count} pixel.",
-  paintingError: "❌ Lỗi trong quá trình vẽ",
-  missingRequirements: "❌ Hãy tải ảnh và chọn vị trí trước",
-  progress: "Tiến độ",
-  pixels: "Pixel",
-  charges: "Lượt vẽ",
-  estimatedTime: "Thời gian ước tính",
-  initMessage: "Bấm 'Khởi động Auto-BOT' để bắt đầu",
-  waitingInit: "Đang chờ khởi tạo...",
-  resizeSuccess: "✅ Ảnh đã đổi kích thước thành {width}x{height}",
-  paintingPaused: "⏸️ Tạm dừng vẽ tại X: {x}, Y: {y}",
-  minimize: "Thu gọn",
-  width: "Chiều rộng",
-  height: "Chiều cao",
-  keepAspect: "Giữ tỉ lệ",
-  apply: "Áp dụng",
-  cancel: "Hủy"
-},
-pt: {
+    pt: {
       title: "WPlace Auto-Image",
       initBot: "Iniciar Auto-BOT",
       uploadImage: "Upload da Imagem",
@@ -89,7 +51,8 @@ pt: {
       initMessage: "Clique em 'Iniciar Auto-BOT' para começar",
       waitingInit: "Aguardando inicialização...",
       resizeSuccess: "✅ Imagem redimensionada para {width}x{height}",
-      paintingPaused: "⏸️ Pintura pausada na posição X: {x}, Y: {y}"
+      paintingPaused: "⏸️ Pintura pausada na posição X: {x}, Y: {y}",
+      captchaNeeded: "❗ Token CAPTCHA necessário. Pinte um pixel manualmente para continuar."
     },
     en: {
       title: "WPlace Auto-Image",
@@ -123,146 +86,12 @@ pt: {
       initMessage: "Click 'Start Auto-BOT' to begin",
       waitingInit: "Waiting for initialization...",
       resizeSuccess: "✅ Image resized to {width}x{height}",
-      paintingPaused: "⏸️ Painting paused at position X: {x}, Y: {y}"
-    },
-    fr: {
-      title: "WPlace Auto-Image",
-      initBot: "Démarrer Auto-BOT",
-      uploadImage: "Télécharger l'image",
-      resizeImage: "Redimensionner l'image",
-      selectPosition: "Sélectionner la position",
-      startPainting: "Commencer la peinture",
-      stopPainting: "Arrêter la peinture",
-      checkingColors: "🔍 Vérification des couleurs disponibles...",
-      noColorsFound: "❌ Ouvrez la palette de couleurs sur le site et réessayez !",
-      colorsFound: "✅ {count} couleurs disponibles trouvées",
-      loadingImage: "🖼️ Chargement de l'image...",
-      imageLoaded: "✅ Image chargée avec {count} pixels valides",
-      imageError: "❌ Erreur lors du chargement de l'image",
-      selectPositionAlert: "Peignez le premier pixel à l’endroit où vous souhaitez commencer l’art !",
-      waitingPosition: "👆 En attente que vous peigniez le pixel de référence...",
-      positionSet: "✅ Position définie avec succès !",
-      positionTimeout: "❌ Temps écoulé pour la sélection de la position",
-      startPaintingMsg: "🎨 Début de la peinture...",
-      paintingProgress: "🧱 Progression : {painted}/{total} pixels...",
-      noCharges: "⌛ Pas de charges. Attente de {time}...",
-      paintingStopped: "⏹️ Peinture arrêtée par l’utilisateur",
-      paintingComplete: "✅ Peinture terminée ! {count} pixels peints.",
-      paintingError: "❌ Erreur pendant la peinture",
-      missingRequirements: "❌ Veuillez d'abord télécharger une image et sélectionner une position",
-      progress: "Progression",
-      pixels: "Pixels",
-      charges: "Charges",
-      estimatedTime: "Temps estimé",
-      initMessage: "Cliquez sur 'Démarrer Auto-BOT' pour commencer",
-      waitingInit: "En attente de l'initialisation...",
-      resizeSuccess: "✅ Image redimensionnée à {width}x{height}",
-      paintingPaused: "⏸️ Peinture en pause à la position X : {x}, Y : {y}"
-    },
-    ru: {
-      title: "WPlace Auto-Image",
-      initBot: "Запустить Auto-BOT",
-      uploadImage: "Загрузить Изображение",
-      resizeImage: "Изменить Размер",
-      selectPosition: "Выбрать Позицию",
-      startPainting: "Начать Рисование",
-      stopPainting: "Завершить Рисование",
-      checkingColors: "🔍 Проверка доступных цветов...",
-      noColorsFound: "❌ Откройте палитру цветов на сайте и попробуйте снова!",
-      colorsFound: "✅ {count} найдено доступных цветов",
-      loadingImage: "🖼️ Загрузка изображения...",
-      imageLoaded: "✅ Изображение загружено с {count} допустимых пикселей",
-      imageError: "❌ Ошибка загрузки изображения",
-      selectPositionAlert: "Нарисуйте первый пиксель в том месте, где вы хотите, чтобы начинался арт.!",
-      waitingPosition: "👆 Ждем, когда вы нарисуете опорный пиксель...",
-      positionSet: "✅ Положение установлено успешно!",
-      positionTimeout: "❌ Время ожидания выбора позиции вышло",
-      startPaintingMsg: "🎨 Начинаем рисовать...",
-      paintingProgress: "🧱 Прогресс: {painted}/{total} пикселей...",
-      noCharges: "⌛ Нет зарядов. ожидание {time}...",
-      paintingStopped: "⏹️ Рисование остановлено пользователем",
-      paintingComplete: "✅ Рисование завершено! {count} пикселей нарисовано.",
-      paintingError: "❌ Ошибка во время рисование",
-      missingRequirements: "❌ Сначала загрузите изображение и выберите позицию",
-      progress: "Прогресс",
-      pixels: "Пиксели",
-      charges: "Заряды",
-      estimatedTime: "Предположительное время",
-      initMessage: "Нажмите «Запустить Auto-BOT», чтобы начать",
-      waitingInit: "Ожидание инициализации...",
-      resizeSuccess: "✅ Изображение изменено до {width}x{height}",
-      paintingPaused: "⏸️ Рисование приостановлено на позиции X: {x}, Y: {y}"
-    },
-    nl: {
-      title: "WPlaats Auto-Afbeelding",
-      initBot: "Start Auto-BOT",
-      uploadImage: "Upload Afbeelding",
-      resizeImage: "Formaat Afbeelding Wijzigen",
-      selectPosition: "Selecteer Positie",
-      startPainting: "Start Schilderen",
-      stopPainting: "Stop Schilderen",
-      checkingColors: "🔍 Beschikbare kleuren controleren...",
-      noColorsFound: "❌ Open het kleurenpalet op de site en probeer het opnieuw!",
-      colorsFound: "✅ {count} beschikbare kleuren gevonden",
-      loadingImage: "🖼️ Afbeelding laden...",
-      imageLoaded: "✅ Afbeelding geladen met {count} geldige pixels",
-      imageError: "❌ Fout bij het laden van de afbeelding",
-      selectPositionAlert: "Schilder de eerste pixel op de locatie waar je de afbeelding wilt laten beginnen!",
-      waitingPosition: "👆 Wacht tot je de referentiepixel schildert...",
-      positionSet: "✅ Positie succesvol ingesteld!",
-      positionTimeout: "❌ Time-out voor positieselectie",
-      startPaintingMsg: "🎨 Schilderen starten...",
-      paintingProgress: "🧱 Voortgang: {geschilderd}/{totaal} pixels...",
-      noCharges: "⌛ Geen kosten. Wachten {time}...",
-      paintingStopped: "⏹️ Schilderen gestopt door gebruiker",
-      paintingComplete: "✅ Schilderen voltooid! {count} pixels geschilderd.",
-      paintingError: "❌ Fout tijdens het schilderen",
-      missingRequirements: "❌ Laad een afbeelding en selecteer eerst een positie",
-      progress: "Voortgang",
-      pixels: "Pixels",
-      charges: "Kosten",
-      estimatedTime: "Geschatte tijd",
-      initMessage: "Klik op 'Start Auto-BOT' om te beginnen",
-      waitingInit: "Wachten op initialisatie...",
-      resizeSuccess: "✅ Afbeelding verkleind naar {breedte} x {hoogte}",
-      paintingPaused: "⏸️ Schilderen gepauzeerd op positie X: {x}, Y: {y}"
-    },
-    uk: {
-      title: "WPlace Auto-Image",
-      initBot: "Запустити бота",
-      uploadImage: "Завантажити зображення",
-      resizeImage: "Змінити розмір зображення",
-      selectPosition: "Вибрати позицію",
-      startPainting: "Почати малювання",
-      stopPainting: "Зупинити малювання",
-      checkingColors: "🔍 Перевірка доступних кольорів...",
-      noColorsFound: "❌ Відкрийте палітру кольорів на сайті та спробуйте ще раз!",
-      colorsFound: "✅ Знайдено {count} доступних кольорів",
-      loadingImage: "🖼️ Завантаження зображення...",
-      imageLoaded: "✅ Зображення завантажено з {count} коректними пікселями",
-      imageError: "❌ Помилка завантаження зображення",
-      selectPositionAlert: "Намалюйте перший піксель у місці, з якого має початися арт!",
-      waitingPosition: "👆 Очікування, поки ви намалюєте контрольний піксель...",
-      positionSet: "✅ Позицію успішно встановлено!",
-      positionTimeout: "❌ Час очікування вибору позиції вичерпано",
-      startPaintingMsg: "🎨 Початок малювання...",
-      paintingProgress: "🧱 Прогрес: {painted}/{total} пікселів...",
-      noCharges: "⌛ Немає зарядів. Очікування {time}...",
-      paintingStopped: "⏹️ Малювання зупинено користувачем",
-      paintingComplete: "✅ Малювання завершено! Намальовано {count} пікселів.",
-      paintingError: "❌ Помилка під час малювання",
-      missingRequirements: "❌ Спочатку завантажте зображення та виберіть позицію",
-      progress: "Прогрес",
-      pixels: "Пікселі",
-      charges: "Заряди",
-      estimatedTime: "Орієнтовний час",
-      initMessage: "Натисніть «Запустити бота», щоб почати",
-      waitingInit: "Очікування запуску...",
-      resizeSuccess: "✅ Зображення змінено до {width}x{height}",
-      paintingPaused: "⏸️ Малювання призупинено на позиції X: {x}, Y: {y}"
+      paintingPaused: "⏸️ Painting paused at position X: {x}, Y: {y}",
+      captchaNeeded: "❗ CAPTCHA token needed. Paint one pixel manually to continue."
     }
   };
 
+  // GLOBAL STATE
   const state = {
     running: false,
     imageLoaded: false,
@@ -281,12 +110,48 @@ pt: {
     minimized: false,
     lastPosition: { x: 0, y: 0 },
     estimatedTime: 0,
-    language: 'vi'
+    language: 'en'
   };
 
-  function detectLanguage(){ state.language = 'vi'; }
-  
+  // Global variable to store the captured CAPTCHA token.
+  let capturedCaptchaToken = null;
 
+  // Intercept the original window.fetch function to "listen" for network requests.
+  const originalFetch = window.fetch;
+  window.fetch = async (url, options) => {
+    // Check if the request is for painting a pixel on wplace.
+    if (typeof url === 'string' && url.includes('https://backend.wplace.live/s0/pixel/')) {
+      try {
+        const payload = JSON.parse(options.body);
+        // If the request body contains the 't' field, it's our CAPTCHA token.
+        if (payload.t) {
+          console.log("✅ CAPTCHA Token Captured:", payload.t);
+          // Store the token for our bot to use.
+          capturedCaptchaToken = payload.t;
+          // Notify the user that the token is captured and they can start the bot.
+          if(document.querySelector('#statusText')?.textContent.includes('CAPTCHA')){
+             Utils.showAlert("Token captured successfully! You can start the bot now.", "success");
+             updateUI('colorsFound', 'success', { count: state.availableColors.length });
+          }
+        }
+      } catch (e) { /* Ignore errors if the request body isn't valid JSON */ }
+    }
+    // Finally, execute the original request, whether we inspected it or not.
+    return originalFetch(url, options);
+  };
+
+
+  async function detectLanguage() {
+    try {
+      const response = await fetch('https://ipapi.co/json/');
+      const data = await response.json();
+      state.language = data.country === 'BR' ? 'pt' : 'en';
+    } catch {
+      state.language = 'en';
+    }
+  }
+
+  // UTILITY FUNCTIONS
   const Utils = {
     sleep: ms => new Promise(r => setTimeout(r, ms)),
     
@@ -397,20 +262,36 @@ pt: {
     }
   };
 
+  // WPLACE API SERVICE
   const WPlaceService = {
     async paintPixelInRegion(regionX, regionY, pixelX, pixelY, color) {
-      try {
-        const res = await fetch(`https://backend.wplace.live/s0/pixel/${regionX}/${regionY}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
-          credentials: 'include',
-          body: JSON.stringify({ coords: [pixelX, pixelY], colors: [color] })
-        });
-        const data = await res.json();
-        return data?.painted === 1;
-      } catch {
-        return false;
-      }
+        try {
+            // Construct the payload including the captured 't' token.
+            const payload = {
+                coords: [pixelX, pixelY],
+                colors: [color],
+                t: capturedCaptchaToken
+            };
+            const res = await fetch(`https://backend.wplace.live/s0/pixel/${regionX}/${regionY}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+                credentials: 'include',
+                body: JSON.stringify(payload)
+            });
+
+            // If we get a 403 Forbidden error, our token is likely expired.
+            if (res.status === 403) {
+                console.error("❌ 403 Forbidden. CAPTCHA token might be invalid or expired.");
+                capturedCaptchaToken = null; // Invalidate our stored token.
+                return 'token_error'; // Return a special status to stop the bot.
+            }
+
+            const data = await res.json();
+            return data?.painted === 1;
+        } catch(e) {
+            console.error("Paint request failed:", e);
+            return false;
+        }
     },
     
     async getCharges() {
@@ -494,7 +375,7 @@ pt: {
   }
 
   async function createUI() {
-    detectLanguage();
+    await detectLanguage();
 
     const fontAwesome = document.createElement('link');
     fontAwesome.rel = 'stylesheet';
@@ -1176,8 +1057,14 @@ pt: {
     });
     
     startBtn.addEventListener('click', async () => {
+      // Before starting, check for all requirements, including the token.
       if (!state.imageLoaded || !state.startPosition || !state.region) {
         updateUI('missingRequirements', 'error');
+        return;
+      }
+      if (!capturedCaptchaToken) {
+        updateUI('captchaNeeded', 'error');
+        Utils.showAlert(Utils.t('captchaNeeded'), 'error');
         return;
       }
       
@@ -1266,6 +1153,14 @@ pt: {
           pixelY,
           colorId
         );
+        
+        // Check for the special 'token_error' status.
+        if (success === 'token_error') {
+            state.stopFlag = true; // Stop the process.
+            updateUI('captchaNeeded', 'error');
+            Utils.showAlert(Utils.t('captchaNeeded'), 'error');
+            break outerLoop; // Exit the loop immediately.
+        }
         
         if (success) {
           state.paintedPixels++;
