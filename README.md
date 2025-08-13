@@ -46,13 +46,13 @@
 ### 🎯┃Auto-Farm
 
 ```js
-javascript:fetch("https://raw.githubusercontent.com/DarkModde/WPlace-AutoBOT/refs/heads/main/Auto-Farm.js").then(t=>t.text()).then(eval);
+javascript:fetch("https://raw.githubusercontent.com/boyherokt/AutoBotDraw/refs/heads/main/Auto-Farm.js").then(t=>t.text()).then(eval);
 ```
 
 ### 🖼️┃Auto-Image
 
 ```js
-javascript:fetch("https://raw.githubusercontent.com/DarkModde/WPlace-AutoBOT/refs/heads/main/Auto-Image.js").then(t=>t.text()).then(eval);
+javascript:fetch("https://raw.githubusercontent.com/boyherokt/AutoBotDraw/refs/heads/main/Auto-Image.js").then(t=>t.text()).then(eval);
 ```
 
 <details>
