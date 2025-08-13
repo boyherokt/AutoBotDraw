@@ -1,3 +1,3 @@
 git add .
-git commit -m "Thêm tiếng việt, nguồn DarkMode"
+git commit -m "Them tieng viet, nguon DarkMode"
 git push origin main
